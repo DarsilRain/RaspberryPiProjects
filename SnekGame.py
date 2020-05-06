@@ -1,9 +1,10 @@
 """ TODO
-Give snek nommies
+Get snek to eat nommies
 
 """
-from sense_emu import SenseHat
+from sense_hat import SenseHat
 from time import sleep
+from random import randint
 sense = SenseHat()
 
 ### Variables ----------------------
@@ -14,7 +15,9 @@ blank=(0,0,0)
 
 snek=[[2,4],[3,4],[4,4]]
 direction="right"
-
+nommies=[]
+nom=[]
+score=0
 
 sense.set_pixel(0,2,blue)
 sense.set_pixel(7,4,red)
@@ -27,8 +30,9 @@ def draw_snek():
         sense.set_pixel(point[0], point[1], white)
 
 def move(direction):
-    last= snek[-1]
-    first=snek[0]
+    global score
+    last= snek[-1] # the last value in the snek array: the snake head
+    first=snek[0]  # the first or 0 value in the snek array
     next=list(last)
     
     if direction == "right":
@@ -55,10 +59,13 @@ def move(direction):
     snek.append(next)
     sense.set_pixel(first[0], first[1], blank) # remove old tail position (x,y,color)
     snek.remove(first)
-
-#def joystick_moved(event):
-#    global direction
-#    direction = event.direction
+    
+    if next in nommies:
+        print(next)
+        nommies.remove(nom)
+        score=score+1
+        print("snek got a nom!")
+        
         
 def pushed_up(event):
     global direction
@@ -87,7 +94,29 @@ def pushed_right(event):
         direction = "right"
         #print("pushed right")
         # move(direction)
+        
+def make_nommies():
+    
+    while len(nommies) < 4:
+        # print(nommies)
+        
+        randx=randint(0,7)
+        randy=randint(0,7)
+        nom=[randx, randy]
+        
+        if nom in snek:
+            print("invalid food location")
+        elif len(nommies) < 4 and randint(1,5) > 4:
+            sense.set_pixel(randx, randy, blue) # draw the food (x,y, color)
+            #print(nom)    
+            nommies.append(nom)
+            #print("nommies is now equal: ", nommies)
 
+def eat_nommies():
+    snekhead=snek[-1]
+    print("snekhead: ", snekhead)
+
+    
 
 ##### Main -----------------------
 sense.clear()
@@ -100,5 +129,9 @@ while True:
     sense.stick.direction_down = pushed_down
     sense.stick.direction_left = pushed_left
     sense.stick.direction_right = pushed_right
+    make_nommies()
+    #eat_nommies()
+    
+    
         
         
